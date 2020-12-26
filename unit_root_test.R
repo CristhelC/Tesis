@@ -19,3 +19,4 @@ hist(Inflacion_China,main = '',xlab = 'Rangos',
 ?hist
 ur.ers(Inflacion_China)
 ?`urca-class`
+hfghuhgjdksgndn
