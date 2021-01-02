@@ -74,7 +74,7 @@ set.seed(42)
 knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
 ```
 
-# I. Introducción
+# I. INTRODUCCION
 ## 1.1 Antecedentes y Justificación del problema
 ### 1.1.1	Antecedentes del Estudio
 En países en desarrollo como Perú, la mayor apertura comercial produce que variables como el tipo de cambio cobren mayor relevancia, en primer lugar, porque se convierte en una variable determinante de la estabilidad económica, además porque logra captar relaciones internacionales.
@@ -116,7 +116,63 @@ La teoría de la paridad del poder de compra establece que el tipo de cambio ent
 El punto de partida de la teoría de la PPC es la denominada Ley de precio único (en adelante LPU).
 
 #### 1.4.1.2	Ley de precio único
+La ley de precio único establece que, en mercados competitivos, donde no existen barreras al comercio (aranceles, licencias, cuotas, etc.) no se toman en cuenta los costos de transporte; los productos idénticos, vendidos en diferentes países, deben tener el mismo precio cuando se expresen en términos de una misma moneda. Matemáticamente se define como:
+
+Donde P_PE^i es el precio en nuevos soles del bien “i” cuando se vende en Perú, E_(S/./Ұ) es el tipo de cambio nominal (sol por yuan chino) y P_CH^i es el precio del bien “i” en yuanes cuando se vende China.
+De manera equivalente, el tipo de cambio sol / yuan es la relación de precios monetarios peruanos y chinos:
+
+Extendiendo la ecuación (2) a la teoría de la PPC y reorganizando, tendremos:
+
+En el lado izquierdo de la ecuación (3) tenemos el precio en soles de la canasta de productos básicos en Perú, mientras que en el lado derecho, tenemos el precio en soles de la misma canasta cuando se compra en China. De manera equivalente, el lado derecho mide el poder adquisitivo de un sol cuando se cambia por yuanes y se gasta en China.
+Entonces podemos deducir que la paridad del poder de compra explica los movimientos en el tipo de cambio entre las monedas de dos países por los cambios en los niveles de precios. 
+Al comparar la ecuación (1) con (3), podemos observar que la diferencia entre la ley de precio único y la PPC, es que la LPU se aplica a productos individuales (como el producto i), mientras que la PPC es un concepto más amplio que hace referencia a canasta de bienes y se aplica a nivel general de precios.
+Si la LPU es válida para cada producto, entonces la PPC debe mantenerse automáticamente siempre que las canastas de referencia utilizadas para calcular los niveles de precios de diferentes países sean las mismas. 
+Incluso cuando la ley de precio único no se cumple para cada producto individual, el argumento es que los precios y tipos de cambio no deben alejarse o desviarse mucho de la PPC. Cuando los bienes y servicios se vuelven temporalmente más caros en un país que en otro, las demandas de sus productos y monedas caen, lo que hace que el tipo de cambio y los precios internos vuelvan a estar en línea con la PPC, en una situación opuesta ocurriría una apreciación de la moneda e inflación de precios. Por lo tanto, el argumento de la teoría de la PPC es que incluso cuando la ley de precio único no se cumple, las fuerzas económicas detrás de ella ayudarán eventualmente a igualar el poder adquisitivo de una moneda en todos los países (Krugman, Obstfeld, & Melitz, 2018).
+
 #### 1.4.1.3	La PPC Absoluta y Relativa
+La teoría de la PPC tiene dos variantes principales: la hipótesis absoluta o fuerte y la relativa o débil.
+La hipótesis absoluta de la paridad del poder de compra se basa en la ley de precio único (LPU), la cual establece que el tipo de cambio entre dos monedas de dos países debería ser igual a la relación de niveles de precios de los dos países, dejando de lado barreras artificiales al comercio y costos de transporte.[^7] Esta hipótesis se cumple cuando:
+El tipo de cambio nominal entre dos monedas es tal que el poder adquisitivo de una moneda es exactamente el mismo en la economía extranjera que en la economía nacional, una vez que se convierte en moneda extranjera. (Isard, Exchange Rates Economics, 1995)
+Específicamente:
+
+En términos de nuestro planteamiento:
+
+Donde $E_{S/./Ұ}$ es el tipo de cambio nominal (tipo de cambio al contado) medido en unidades de moneda extranjera por unidad de moneda nacional, P_PE es el nivel de precio interno y P_CH es el nivel de precio externo.
+Por otro lado, tenemos a la hipótesis de la PPC relativa, una versión que relaja los supuestos de la versión fuerte o absoluta y permite que el tipo de cambio y los precios relativos se diferencien por un factor constante “K”[^8]:
+
+Cualquiera de las dos variantes implica un tipo de cambio real constante “Q”:
+
+Si tomamos logaritmos de ambos lados de la ecuación (7):
+
+Como “K” es una constante, su logaritmo será igual a 0, lo que permite aseverar que el logaritmo del tipo de cambio real (Q) también será una constante aunque no necesariamente igual a cero. Si denotamos con minúsculas los logaritmos, tenemos:
+
+Bajo cualquiera de las variantes de la PPC, un cambio en la relación de niveles de precios implica un cambio proporcional en el tipo de cambio nominal, de modo que:
+
+La expresión de la ecuación (10) nos dice que el cambio porcentual en el tipo de cambio nominal es igual a la diferencia entre las tasas de inflación en el país nacional y el extranjero, en este caso Perú y China. También podría interpretarse como el porcentaje de depreciación o apreciación del tipo de cambio debe ser igual a la diferencia en las tasa de inflación.
+La hipótesis de la paridad absoluta del poder de compra tiene algunas limitaciones debido a la dificultad de encontrar canastas de bienes parecidas para comparar el poder adquisitivo entre países. Por lo anterior, es común tratar de probar la PPC relativa, que sostiene que el cambio porcentual en el tipo de cambio durante un período determinado es igual a la diferencia en las tasas de inflación en los países afectados durante el mismo periodo. Si la PPC absoluta se mantiene, la PPC relativa también debe mantenerse; sin embargo, “si la PPC relativa se mantiene, la PPC absoluta no necesariamente, ya que es posible que ocurran cambios comunes en los tipos de cambio nominales a diferentes niveles de poder adquisitivo para las dos monedas (por ejemplo debido a costos de transporte)” (Krugman, Obstfeld, & Melitz, 2018).
+En teoría, cualquier desviación de la PPC debe traducirse en un cambio inmediato en los precios y tipo de cambio, de manera que la paridad se mantenga. Sin embargo debido a las barreras al comercio mencionadas anteriormente, la PPC no se cumple a cabalidad. Diversos estudios sostienen que las desviaciones de la PPC son temporales para que finalmente los precios converjan entre sí. Esto significa que el tipo de cambio real debe ser estacionario, es decir no debe tener raíz unitaria. Si el tipo de cambio real se ve afectado por un shock exógeno (cambio en el precio o tipo de cambio nominal), la serie debe volver a su nivel promedio.
+El modelo econométrico que se utilizará finalmente será:
+### 1.4.2 Marco Conceptual
+#### 1.4.2.1	Inflación
+#### 1.4.2.2	Indice de precios al consumidor
+#### 1.4.2.3	Tipo de cambio nominal
+#### 1.4.2.4	Tipo de cambio real
+#### 1.4.2.5	Apreciación
+#### 1.4.2.6	Depreciación
+#### 1.4.2.7	Paridad del poder de pago
+#### 1.4.2.8	Poder de compra adquisitivo
+#### 1.4.2.9	Modelo de Corrección de errores
+
+## 1.5 Hipotesis
+Se cumpla la teoría de la PPP entre Perú y China en el período de estudio, es decir los cambios en las tasa de inflación de ambos países vendrían acompañados de apreciaciones o depreciaciones del tipo de cambio nominal (sol por yuan chino).
+
+# II. DISEÑO DE LA INVESTIGACION
+## 2.1 Materiales y métodos
+## 2.2 Operacionalización de las variables
+## 2.3 Técnicas e instrumentos de Recolección de Datos
+## 2.4 Estrategias metodológicas
+
+
 
 [^1]Específicamente en los años 1916, 1918 y 1921.
 [^2]Véase (Gilbert & Kravis, 1954)
