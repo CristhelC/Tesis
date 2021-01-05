@@ -26,23 +26,14 @@ Paridad<- read.csv(
   strip.white = TRUE,
   sep = ';'
 )
-head(Paridad)
-View(Paridad)
-summary(Paridad)
-attach(Paridad)
-
-Paridad2<- read.csv(
-  file = 'Datos_Paridad2.csv',
-  stringsAsFactors = FALSE, 
-  strip.white = TRUE,
-  sep = ';'
-)
-head(Paridad2)
-View(Paridad2)
-summary(Paridad2)
-attach(Paridad2)
-names(Paridad2)
-class(Paridad2)
+PPP <- Paridad[,!(names(Paridad)== "T")]
+ts(PPP, start =c(2002,1),end=c(2019,12),freq=12)
+head(PPP)
+View(PPP)
+summary(PPP)
+attach(PPP)
+names(Paridad)
+class(Paridad)
 
 #Histogramas
 hist(Inflacion_China,main = '',xlab = 'Rangos',
@@ -85,42 +76,45 @@ axis(1,at=niveles, labels=niveles,las=2, cex.axis=0.5)
 #PRUEBAS ESTADISTICAS
 #Tipo de cambio
 ##ADF
-adf.tc<-ur.df(Tipo_cambio,type = 'drift',selectlags = 'AIC')
+adf.tc<-ur.df(Tipo_cambio,type = 'drift',lags = 36,selectlags = 'BIC')
 summary(adf.tc)
 plot(adf.tc)
 
-adf.tc<-ur.df(Tipo_cambio,type='none',selectlags = 'AIC')
+adf.tc<-ur.df(Tipo_cambio,type='none',lags = 36,selectlags = 'AIC')
 summary(adf.tc)
 plot(adf.tc)
 
 #ERS_tipo de cambio
 #Constante
-ers.tc<-ur.ers(Tipo_cambio,type = 'DF-GLS',model = 'constant')
+ers.tc<-ur.ers(Tipo_cambio,type = 'DF-GLS',model = 'constant',lag.max = 13)
 summary(ers.tc)
 plot(ers.tc)
 #Constante y Tendencia
-ers.tc<-ur.ers(Tipo_cambio, type = "DF-GLS", model = c("constant", "trend"))
+ers.tc<-ur.ers(Tipo_cambio, type = "DF-GLS", model = c("constant", "trend"),lag.max = 4)
 summary(ers.tc)
 plot(ers.tc)
 
 #PP_tipo de cambio
-pp.tc<-ur.pp(Tipo_cambio,type = 'Z-tau')
+pp.tc<-ur.pp(Tipo_cambio,type = 'Z-tau',model = 'constant',lags = 'long',
+             use.lag = NULL)
 pp.tc
 pp.tc@cval
 plot(pp.tc)
 
 #Primeras diferencias
 #Tipo de cambio
+#ADF
 #Intercepto
-adf.tc<-ur.df(diff(Tipo_cambio),type = 'drift',selectlags = 'AIC')
+adf.tc<-ur.df(diff(Tipo_cambio),type = 'drift',lags = 36,selectlags = 'AIC')
 summary(adf.tc)
 plot(adf.tc)
 #Intercepto y Tendencia
-adf.tc<-ur.df(diff(Tipo_cambio),type='none',selectlags = 'AIC')
+adf.tc<-ur.df(diff(Tipo_cambio),type='none',lags = 36,selectlags = 'AIC')
 summary(adf.tc)
 plot(adf.tc)
+#URS
 #Constante
-ers.tc<-ur.ers(diff(Tipo_cambio),type = 'DF-GLS',model = 'constant')
+ers.tc<-ur.ers(diff(Tipo_cambio),type = 'DF-GLS',model = 'constant',lag.max = 13)
 summary(ers.tc)
 plot(ers.tc)
 #Constante y Tendencia
@@ -143,7 +137,7 @@ plot(pp.dtc)
 
 #Diferencia Inflación
 ##ADF
-adf.di<-ur.df(Dif_Inflacion,type = 'drift',selectlags = 'AIC')
+adf.di<-ur.df(Dif_Inflacion,type = 'drift',lags = 36,selectlags = 'AIC')
 summary(adf.di)
 plot(adf.di)
 
@@ -182,7 +176,7 @@ plot(pp.tc)
 
 #Primeras diferencias
 ##ADF
-adf.ddi<-ur.df(diff(Dif_Inflacion),type = 'drift',selectlags = 'AIC')
+adf.ddi<-ur.df(diff(Dif_Inflacion),type = 'drift',lags = 36,selectlags = 'AIC')
 summary(adf.ddi)
 plot(adf.ddi)
 
@@ -301,28 +295,49 @@ plot(ers.tipocambio)
 summary(ers.tipocambio)
 
 #Generar Modelo
-modelo1=lm(diff(Tipo_cambio)~diff(Dif_Inflacion))
+modelo1=lm((Tipo_cambio)~(Dif_Inflacion))
 summary(modelo1)
 #Modelo1
-Tipo_cambio=3.394+1.765(Dif_Inflacion)
+Tipo_cambio=0.006075+1.090768(Dif_Inflacion)
 #Residuos
 residuales=modelo1$residuals
 summary(residuales)
 residualPlot(modelo1)
 #Con Tendencia
-y=ur.df(residuales,type = 'trend',selectlags = 'AIC')
+y=ur.df(residuales,type = 'trend',lags = 36,selectlags = 'AIC')
 summary(y)
 #Con Constante
-y2=ur.df(residuales,type = 'drift',selectlags = 'AIC')
+y2=ur.df(residuales,type = 'drift',selectlags = 'AIC',lags = 36)
 summary(y2)
 #Con Constante y Tendencia
-y3=ur.df(residuales,type = 'none',selectlags = 'AIC')
+y3=ur.df(residuales,type = 'none',selectlags = 'AIC',lags = 36)
 summary(y3)
+
+adf.test(residuales)
 
 #Prueba de Phillips y Oularis para Cointegración
 prueba.PO=ca.po(Paridad2,type = 'Pz')
 summary(prueba.PO)
 plot(prueba.PO)
+
+#Genero Modelo de Correción de Errores
+dTC<-diff(Tipo_cambio)
+dDI<-diff(Dif_Inflacion)
+modelo2=lm
+
+
+Paridad2<- read.csv(
+  file = 'p2.csv',
+  stringsAsFactors = FALSE, 
+  strip.white = TRUE,
+  sep = ';'
+)
+
+head(Paridad2)
+View(Paridad2)
+summary(Paridad2)
+attach(Paridad2)
+
 
 #Prueba de Cointegración de Johansen
 TParidad=cbind(diff(Tipo_cambio),diff(Dif_Inflacion))
