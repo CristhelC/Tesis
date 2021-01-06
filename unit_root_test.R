@@ -26,8 +26,8 @@ Paridad<- read.csv(
   strip.white = TRUE,
   sep = ';'
 )
-PPP <- Paridad[,!(names(Paridad)== "T")]
 ts(PPP, start =c(2002,1),end=c(2019,12),freq=12)
+PPP <- Paridad[,!(names(Paridad)== "T")]
 head(PPP)
 View(PPP)
 summary(PPP)
@@ -323,53 +323,38 @@ plot(prueba.PO)
 #Genero Modelo de Correción de Errores
 dTC<-diff(Tipo_cambio)
 dDI<-diff(Dif_Inflacion)
-modelo2=lm
+modelo2=lm(dTC~dDI)
+summary(modelo2)
+#Genero los residuos
+res2<-modelo2$residuals
+res2_1<-lag(res2)
 
+MCE=lm(dTC~dDI+res2_1)
+summary(MCE)
 
-Paridad2<- read.csv(
+#Johansen Test
+
+#Load the Dataset
+PPP<- read.csv(
   file = 'p2.csv',
   stringsAsFactors = FALSE, 
   strip.white = TRUE,
   sep = ';'
 )
+TC<-ts(PPP$Tipo_cambio, start =c(2002,1),end=c(2019,12),freq=12)
+DI<-ts(PPP$Dif_Inflacion, start =c(2002,1),end=c(2019,12),freq=12)
 
-head(Paridad2)
-View(Paridad2)
-summary(Paridad2)
-attach(Paridad2)
+#Bind into a system
+dset<-cbind((TC),(DI))
 
-
-#Prueba de Cointegración de Johansen
-TParidad=cbind(diff(Tipo_cambio),diff(Dif_Inflacion))
-
-#Seleccionar retardos apropiados
-lagselect<-VARselect(TParidad,lag.max = 10,type = 'const')
+#Lag Selection criteria
+lagselect<-VARselect(dset,lag.max = 30,type = 'const')
 lagselect$selection
-#2 retardos es lo óptimo
 
-#Johansen Test
-cTest<-ca.jo(TParidad,type = 'trace',ecdet = 'const',K=2)
-summary(cTest)
+#Johansen test (trace)
+ctest1<-ca.jo(dset,type = 'trace',ecdet = 'const',K=13)
+summary(ctest1)
 
-##again
-TC=ts(Tipo_cambio,start = c(2002,1),end = c(2019,12),frequency = 12)
-DI=ts(Dif_Inflacion,start = c(2002,1),end = c(2019,12),frequency = 12)
-Datos.j=cbind(TC,DI)
-print(Datos.j)
-plot(Datos.j,xlab = 'Años',main = '',
-     col='#3361FF',lwd=2)
-axis(1,at=niveles, labels=niveles,las=2, cex.axis=0.5)
-
-VARselect(Datos.j,lag.max = 10,type = 'const')
-VARselect(Datos.j,lag.max = 10,type = 'const')$selection
-
-#Generamos un modelo de regresión
-modelo2=lm(TC~DI,data = Datos.j)
-summary(modelo2)
-
-#Modelo2 quedaría
-TC=0.006075+1.090768(DI)
-
-residuales=modelo2$residuals
-plot(residuales)
-residualPlot(modelo2)
+#Johansen test (Maxeigen)
+ctest2<-ca.jo(dset,type = 'eigen',ecdet = 'const',K=13)
+summary(ctest2)
