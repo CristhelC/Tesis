@@ -27,13 +27,13 @@ Paridad<- read.csv(
   sep = ';'
 )
 ts(PPP, start =c(2002,1),end=c(2019,12),freq=12)
-PPP <- Paridad[,!(names(Paridad)== "T")]
+PPP <- Paridad[,!(names(PPP)== "T")]
 head(PPP)
 View(PPP)
 summary(PPP)
 attach(PPP)
-names(Paridad)
-class(Paridad)
+names(PPP)
+class(PPP)
 
 #Histogramas
 hist(Inflacion_China,main = '',xlab = 'Rangos',
@@ -80,24 +80,30 @@ adf.tc<-ur.df(Tipo_cambio,type = 'drift',lags = 36,selectlags = 'BIC')
 summary(adf.tc)
 plot(adf.tc)
 
-adf.tc<-ur.df(Tipo_cambio,type='none',lags = 36,selectlags = 'AIC')
+adf.tc<-ur.df(Tipo_cambio,type='trend',lags = 36,selectlags = 'BIC')
 summary(adf.tc)
 plot(adf.tc)
 
 #ERS_tipo de cambio
 #Constante
-ers.tc<-ur.ers(Tipo_cambio,type = 'DF-GLS',model = 'constant',lag.max = 13)
+ers.tc<-ur.ers(Tipo_cambio,type = 'P-test',model = 'constant',lag.max = 13)
 summary(ers.tc)
 plot(ers.tc)
 #Constante y Tendencia
-ers.tc<-ur.ers(Tipo_cambio, type = "DF-GLS", model = c("constant", "trend"),lag.max = 4)
+ers.tc<-ur.ers(Tipo_cambio, type ="P-test", model = c("constant", "trend"),lag.max = 13)
 summary(ers.tc)
 plot(ers.tc)
 
 #PP_tipo de cambio
-pp.tc<-ur.pp(Tipo_cambio,type = 'Z-tau',model = 'constant',lags = 'long',
-             use.lag = NULL)
+pp.tc<-ur.pp(Tipo_cambio,type = 'Z-tau',model = 'constant',lags = 'long')
 pp.tc
+summary(pp.tc)
+pp.tc@cval
+plot(pp.tc)
+
+pp.tc<-ur.pp(Tipo_cambio,type = 'Z-tau',model ='trend',lags = 'long')
+pp.tc
+summary(pp.tc)
 pp.tc@cval
 plot(pp.tc)
 
@@ -105,206 +111,121 @@ plot(pp.tc)
 #Tipo de cambio
 #ADF
 #Intercepto
-adf.tc<-ur.df(diff(Tipo_cambio),type = 'drift',lags = 36,selectlags = 'AIC')
+adf.tc<-ur.df(diff(Tipo_cambio),type = 'drift',lags = 36,selectlags = 'BIC')
 summary(adf.tc)
 plot(adf.tc)
 #Intercepto y Tendencia
-adf.tc<-ur.df(diff(Tipo_cambio),type='none',lags = 36,selectlags = 'AIC')
+adf.tc<-ur.df(diff(Tipo_cambio),type='trend',lags = 36,selectlags = 'BIC')
 summary(adf.tc)
 plot(adf.tc)
 #URS
 #Constante
-ers.tc<-ur.ers(diff(Tipo_cambio),type = 'DF-GLS',model = 'constant',lag.max = 13)
+ers.tc<-ur.ers(diff(Tipo_cambio),type = 'DF-GLS',model = 'constant',lag.max = 12)
 summary(ers.tc)
 plot(ers.tc)
 #Constante y Tendencia
-ers.tc<-ur.ers(diff(Tipo_cambio), type = "DF-GLS", model = c("constant", "trend"))
+ers.tc<-ur.ers(diff(Tipo_cambio), type = "DF-GLS", model = c("constant", "trend")
+               ,lag.max = 12)
 summary(ers.tc)
 plot(ers.tc)
 
 #PP
 #constante
-pp.dtc<-ur.pp(diff(Tipo_cambio),type = 'Z-tau',model = 'constant')
-pp.dtc
+pp.dtc<-ur.pp(diff(Tipo_cambio),type = 'Z-tau',model = 'constant',lags = 'long')
+summary(pp.dtc)
 pp.dtc@cval
 plot(pp.dtc)
 #constante e tendencia
-pp.dtc<-ur.pp(diff(Tipo_cambio),type = 'Z-tau',model = c('constant','trend'))
-pp.dtc
+pp.dtc<-ur.pp(diff(Tipo_cambio),type = 'Z-tau',model = 'trend',lags = 'long')
+summary(pp.dtc)
 pp.dtc@cval
 plot(pp.dtc)
 
 
 #Diferencia Inflación
 ##ADF
-adf.di<-ur.df(Dif_Inflacion,type = 'drift',lags = 36,selectlags = 'AIC')
+adf.di<-ur.df(Dif_Inflacion,type = 'drift',lags = 36,selectlags = 'BIC')
 summary(adf.di)
 plot(adf.di)
 
-adf.di<-ur.df(Dif_Inflacion,type='none',selectlags = 'AIC')
+adf.di<-ur.df(Dif_Inflacion,type='trend',lags=36,selectlags = 'BIC')
 summary(adf.di)
 plot(adf.di)
 
 ##ERS
-#Constante #DF-GLS
-ers.di<-ur.ers(Dif_Inflacion,type = 'DF-GLS',model = 'constant')
-summary(ers.di)
-#Constante #P-Test
-ers.di<-ur.ers(Dif_Inflacion,type = 'P-test',model = 'constant')
+#Constante
+ers.di<-ur.ers(Dif_Inflacion,type = 'P-test',model = 'constant',lag.max = 25)
 summary(ers.di)
 
-#Constante y Tendencia #DF-GLS
-ers.di<-ur.ers(Dif_Inflacion, type = "DF-GLS", model = c("constant", "trend"))
-summary(ers.di)
-plot(ers.tc)
-#Constante y Tendencia #P-Test
-ers.di<-ur.ers(Dif_Inflacion, type = "P-test", model = c("constant", "trend"))
+#Constante y Tendencia
+ers.di<-ur.ers(Dif_Inflacion, type = "P-test", model = c("constant", "trend")
+               ,lag.max = 25)
 summary(ers.di)
 plot(ers.tc)
 
 ##PP
 #Constante
-pp.di<-ur.pp(Dif_Inflacion,type = 'Z-tau',model = 'constant')
-pp.di
+pp.di<-ur.pp(Dif_Inflacion,type = 'Z-tau',model = 'constant',lags = 'long')
+summary(pp.di)
 pp.di@cval
 plot(pp.tc)
 #Constante y Tendencia
-pp.di<-ur.pp(Dif_Inflacion,type = 'Z-tau',model = c('constant','trend'))
-pp.di
+pp.di<-ur.pp(Dif_Inflacion,type = 'Z-tau',model = c('constant','trend'),
+             lags = 'long')
+summary(pp.di)
 pp.di@cval
 plot(pp.tc)
 
 #Primeras diferencias
 ##ADF
-adf.ddi<-ur.df(diff(Dif_Inflacion),type = 'drift',lags = 36,selectlags = 'AIC')
+adf.ddi<-ur.df(diff(Dif_Inflacion),type = 'drift',lags = 36,selectlags = 'BIC')
 summary(adf.ddi)
 plot(adf.ddi)
 
-adf.ddi<-ur.df(diff(Dif_Inflacion),type='none',selectlags = 'AIC')
+adf.ddi<-ur.df(diff(Dif_Inflacion),type='trend',lags = 36,selectlags = 'BIC')
 summary(adf.ddi)
 plot(adf.ddi)
 
 ##ERS
-#Constante #DF-GLS
-ers.ddi.d<-ur.ers(diff(Dif_Inflacion),type = 'DF-GLS',model = 'constant')
+#Constante
+ers.ddi.d<-ur.ers(diff(Dif_Inflacion),type = 'P-test',model = 'constant',
+                  lag.max = 24)
 summary(ers.ddi.d)
 plot(ers.ddi.d)
 
-#Constante #P-Test
-ers.ddi.p<-ur.ers(diff(Dif_Inflacion),type = 'P-test',model = 'constant')
-summary(ers.ddi.p)
-plot(ers.ddi.p)
-
 #Constante y Tendencia #DF-GLS
-ers.ddi.d1<-ur.ers(diff(Dif_Inflacion), type = "DF-GLS", model = c("constant", "trend"))
+ers.ddi.d1<-ur.ers(diff(Dif_Inflacion), type = "P-test",
+                   model = c("constant", "trend"),lag.max = 24)
 summary(ers.ddi.d1)
 plot(ers.ddi.d1)
-#Constante y Tendencia #P-Test
-ers.ddi.p1<-ur.ers(diff(Dif_Inflacion), type = "P-test", model = c("constant", "trend"))
-summary(ers.ddi.p1)
-plot(ers.ddi.p1)
+
 
 ##PP
 #Constante
-pp.ddi<-ur.pp(diff(Dif_Inflacion),type = 'Z-tau',model = 'constant')
-pp.ddi
+pp.ddi<-ur.pp(diff(Dif_Inflacion),type = 'Z-tau',model = 'constant',
+              lags = 'long')
+summary(pp.ddi)
 pp.ddi@cval
 plot(pp.ddi)
 #Constante y Tendencia
-pp.ddi<-ur.pp(diff(Dif_Inflacion),type = 'Z-tau',model = c('constant','trend'))
-pp.ddi
+pp.ddi<-ur.pp(diff(Dif_Inflacion),type = 'Z-tau',
+              model = c('constant','trend'),lags = 'long')
+summary(pp.ddi)
 pp.ddi@cval
 plot(pp.ddi)
 
 
-
-#DFA_inflacion_peru
-adf.infpe<-tseries::adf.test(Inflacion_Peru,k=trunc(4))
-plot(adf.infpe)
-#ERS_inflacion_peru
-ers.infpe<-ur.ers(Inflacion_Peru)
-summary(ers.infpe)
-plot(ers.infpe)
-#PP_inflacion_peru
-pp.infpe<-ur.pp(Inflacion_Peru,type = 'Z-tau')
-pp.infpe
-pp.infpe@cval
-plot(pp.infpe)
-
-
-#DFA_inflacion_china
-adf.infch<-tseries::adf.test(Inflacion_China,k=trunc(4))
-plot(adf.infch)
-#ERS_inflacion_china
-ers.infch<-ur.ers(Inflacion_China)
-summary(ers.infch)
-plot(ers.infch)
-#PP_inflacion_china
-pp.infch<-ur.pp(Inflacion_China,type = 'Z-tau')
-pp.infch
-pp.infch@cval
-plot(pp.infch)
-
-#DFA_Diff_Inflacion
-adf.dif.inf<-ur.df(Dif_Inflacion,type = 'drift')
-summary(adf.dif.inf)
-plot(adf.dif.inf)
-
-adf.dif.inf<-ur.df(Dif_Inflacion,type='trend',selectlags = 'AIC')
-summary(adf.dif.inf)
-plot(adf.tc)
-
-adf.dif.inf<-ur.df(Dif_Inflacion,type='none',selectlags = 'AIC')
-summary(adf.dif.inf)
-plot(adf.tc)
-
-#Primeras diferencias para diferencia de inflación
-adf.dd.inf<-ur.df(diff(Dif_Inflacion),type = 'drift',selectlags = 'AIC')
-summary(adf.dd.inf)
-plot(adf.tc)
-
-#ERS_Dif_inflación
-ers.dif.inf<-ur.ers(Dif_Inflacion)
-summary(ers.tc)
-
-ers.dif.inf<-ur.ers(Dif_Inflacion, type = "DF-GLS", model = c("constant", "trend"))
-summary(ers.dif.inf)
-plot(ers.tc)
-
-ers.dif.inf<-ur.ers(Dif_Inflacion, type = "P-test", model = c("constant", "trend") )
-summary(ers.dif.inf)
-plot(ers.tc)
-
-#PP_Diff_Inflacion
-pp.dif.inf<-ur.pp(Dif_Inflacion,type = 'Z-tau')
-pp.dif.inf
-pp.dif.inf@cval
-plot(pp.dif.inf)
-
-##Primeras Diferencias
-ers.dif.inf<-ur.ers(diff(Dif_Inflacion),type ='DF-GLS')
-summary(ers.dif.inf)
-
-ers1.infch<-ur.ers(diff(Inflacion_China))
-summary(ers.ch)
-ers.dif<-ur.ers(Dif_Inflacion,type ='DF-GLS')
-summary(ers.dif)
-ers.tipocambio<-ur.ers(diff(Tipo_cambio),type ='DF-GLS',model = 'trend')
-summary(ers.tipocambio)
-plot(ers.tipocambio)
-summary(ers.tipocambio)
-
 #Generar Modelo
-modelo1=lm((Tipo_cambio)~(Dif_Inflacion))
+modelo1=lm(diff(Tipo_cambio)~diff(Dif_Inflacion))
 summary(modelo1)
 #Modelo1
-Tipo_cambio=0.006075+1.090768(Dif_Inflacion)
+diff(Tipo_cambio)=3.394+1.765*diff(Dif_Inflacion)
 #Residuos
 residuales=modelo1$residuals
 summary(residuales)
 residualPlot(modelo1)
 #Con Tendencia
-y=ur.df(residuales,type = 'trend',lags = 36,selectlags = 'AIC')
+y=ur.df(residuales,type = 'trend',lags = 36,selectlags = 'BIC')
 summary(y)
 #Con Constante
 y2=ur.df(residuales,type = 'drift',selectlags = 'AIC',lags = 36)
