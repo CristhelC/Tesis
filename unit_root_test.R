@@ -9,6 +9,9 @@ install.packages('normtest')
 install.packages('tidyverse')
 install.packages('car')
 install.packages('mFilter')
+install.packages('PMmisc')
+install.packages('MTS')
+install.packages('tsDyn')
 library(tidyverse)
 library(lubridate)
 library(tseries)
@@ -16,9 +19,11 @@ library(car)
 library(urca)
 library(normtest)
 library(vars)
-library(forescast)
+library(forecast)
 library(nlme)
 library(mFilter)
+library(MTS)
+library(tsDyn)
 getwd()
 Paridad<- read.csv(
   file = 'Datos_Paridad.csv',
@@ -86,7 +91,7 @@ plot(adf.tc)
 
 #ERS_tipo de cambio
 #Constante
-ers.tc<-ur.ers(Tipo_cambio,type = 'P-test',model = 'constant',lag.max = 13)
+ers.tc<-ur.ers(Tipo_cambio,type = 'DF-GLS',model = 'constant',lag.max = 14)
 summary(ers.tc)
 plot(ers.tc)
 #Constante y Tendencia
@@ -136,7 +141,7 @@ summary(pp.dtc)
 pp.dtc@cval
 plot(pp.dtc)
 #constante e tendencia
-pp.dtc<-ur.pp(diff(Tipo_cambio),type = 'Z-tau',model = 'trend',lags = 'long')
+pp.dtc<-ur.pp(diff(Tipo_cambio),type = 'Z-tau',model = c('trend'),lags = 'long')
 summary(pp.dtc)
 pp.dtc@cval
 plot(pp.dtc)
@@ -154,12 +159,12 @@ plot(adf.di)
 
 ##ERS
 #Constante
-ers.di<-ur.ers(Dif_Inflacion,type = 'P-test',model = 'constant',lag.max = 25)
+ers.di<-ur.ers(diff(DI),type = 'DF-GLS',model = 'constant')
 summary(ers.di)
-
+plot(ers.di)
+?ur.ers
 #Constante y Tendencia
-ers.di<-ur.ers(Dif_Inflacion, type = "P-test", model = c("constant", "trend")
-               ,lag.max = 25)
+ers.di<-ur.ers(Dif_Inflacion, type = "P-test", model = c("constant", "trend"))
 summary(ers.di)
 plot(ers.tc)
 
@@ -188,13 +193,13 @@ plot(adf.ddi)
 
 ##ERS
 #Constante
-ers.ddi.d<-ur.ers(diff(Dif_Inflacion),type = 'P-test',model = 'constant',
+ers.ddi.d<-ur.ers(diff(Dif_Inflacion),type = 'DF-GLS',model = 'constant',
                   lag.max = 24)
 summary(ers.ddi.d)
 plot(ers.ddi.d)
 
 #Constante y Tendencia #DF-GLS
-ers.ddi.d1<-ur.ers(diff(Dif_Inflacion), type = "P-test",
+ers.ddi.d1<-ur.ers(diff(Dif_Inflacion), type = "DF-GLS",
                    model = c("constant", "trend"),lag.max = 24)
 summary(ers.ddi.d1)
 plot(ers.ddi.d1)
@@ -209,7 +214,7 @@ pp.ddi@cval
 plot(pp.ddi)
 #Constante y Tendencia
 pp.ddi<-ur.pp(diff(Dif_Inflacion),type = 'Z-tau',
-              model = c('constant','trend'),lags = 'long')
+              model = c('trend'),lags = 'long')
 summary(pp.ddi)
 pp.ddi@cval
 plot(pp.ddi)
@@ -236,22 +241,26 @@ summary(y3)
 
 adf.test(residuales)
 
-#Prueba de Phillips y Oularis para Cointegración
-prueba.PO=ca.po(Paridad2,type = 'Pz')
+#Prueba de Phillips y Ouliaris para Cointegración
+prueba.PO=ca.po(dset,demean = 'none',type = 'Pz',lag = 'long')
 summary(prueba.PO)
 plot(prueba.PO)
 
 #Genero Modelo de Correción de Errores
 dTC<-diff(Tipo_cambio)
-dDI<-diff(Dif_Inflacion)
+dDI<-diff(di_9)
 modelo2=lm(dTC~dDI)
 summary(modelo2)
+
 #Genero los residuos
 res2<-modelo2$residuals
 res2_1<-lag(res2)
-
 MCE=lm(dTC~dDI+res2_1)
 summary(MCE)
+
+vc<-VECM(dset,lag = 13,estim ='2OLS',r=1)
+summary(vc)
+
 
 #Johansen Test
 
@@ -262,20 +271,35 @@ PPP<- read.csv(
   strip.white = TRUE,
   sep = ';'
 )
+attach(PPP)
 TC<-ts(PPP$Tipo_cambio, start =c(2002,1),end=c(2019,12),freq=12)
-DI<-ts(PPP$Dif_Inflacion, start =c(2002,1),end=c(2019,12),freq=12)
+DI<-ts(di_9, start =c(2002,1),end=c(2019,12),freq=12)
 
 #Bind into a system
-dset<-cbind((TC),(DI))
+dset<-cbind(diff(TC),diff(DI))
+dset
+di_9<-lag(PPP$Dif_Inflacion,9)
+plot(di_9)
+plot(Dif_Inflacion)
+cor.lag(TC,DI)
+?cor
+length(di_9)
+view(di_9)
 
 #Lag Selection criteria
-lagselect<-VARselect(dset,lag.max = 30,type = 'const')
+lagselect<-VARselect(dset,lag.max = 50,type = 'const')
 lagselect$selection
 
+
 #Johansen test (trace)
-ctest1<-ca.jo(dset,type = 'trace',ecdet = 'const',K=13)
+ctest1<-ca.jo(dset,K=31,type = 'trace',ecdet = 'const',spec = 'transitory')
 summary(ctest1)
 
 #Johansen test (Maxeigen)
-ctest2<-ca.jo(dset,type = 'eigen',ecdet = 'const',K=13)
+ctest2<-ca.jo(dset,K=31,type = 'eigen',ecdet = 'const',spec = 'transitory')
 summary(ctest2)
+
+#Estimación VEC
+vecm1<-cajorls(ctest1,r=1)
+vecm1
+summary(vecm1$rlm)
