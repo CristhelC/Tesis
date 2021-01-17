@@ -12,6 +12,7 @@ install.packages('mFilter')
 install.packages('PMmisc')
 install.packages('MTS')
 install.packages('tsDyn')
+install.packages('bvartools')
 library(tidyverse)
 library(lubridate)
 library(tseries)
@@ -24,9 +25,10 @@ library(nlme)
 library(mFilter)
 library(MTS)
 library(tsDyn)
+library(bvartools)
 getwd()
 Paridad<- read.csv(
-  file = 'Datos_Paridad.csv',
+  file = 'Datos_Paridad2.csv',
   stringsAsFactors = FALSE, 
   strip.white = TRUE,
   sep = ';'
@@ -36,7 +38,7 @@ PPP <- Paridad[,!(names(PPP)== "T")]
 head(PPP)
 View(PPP)
 summary(PPP)
-attach(PPP)
+attach(Paridad)
 names(PPP)
 class(PPP)
 
@@ -54,13 +56,7 @@ hist(Inflacion_Peru,main = '',xlab = 'Rangos',
 ?hist
 ?`urca-class`
 ?`ur.pp-class`
-#instalar papaja
-writeLines('PATH="${RTOOLS40_HOME}\\usr\\bin;${PATH}"', con = "~/.Renviron")
-Sys.which("make")
-## "C:\\rtools40\\usr\\bin\\make.exe"
-install.packages("jsonlite", type = "source")
-if(!"devtools" %in% rownames(installed.packages())) install.packages("devtools")
-devtools::install_github("crsh/papaja")
+
 #plot
 niveles<-factor(Paridad$T)
 ?plot
@@ -254,11 +250,11 @@ summary(modelo2)
 
 #Genero los residuos
 res2<-modelo2$residuals
-res2_1<-lag(res2)
-MCE=lm(dTC~dDI+res2_1)
+res23<-lag(res2)
+MCE=lm(dTC~dDI+res23)
 summary(MCE)
 
-vc<-VECM(dset,lag = 13,estim ='2OLS',r=1)
+vc<-VECM(dset,lag = 42,estim ='2OLS',r=1)
 summary(vc)
 
 
@@ -272,34 +268,55 @@ PPP<- read.csv(
   sep = ';'
 )
 attach(PPP)
-TC<-ts(PPP$Tipo_cambio, start =c(2002,1),end=c(2019,12),freq=12)
-DI<-ts(di_9, start =c(2002,1),end=c(2019,12),freq=12)
+p1<-ts(PPP,start = c(2002,1),end = c(2019,12),frequency = 12)
+p2<-ts(Paridad,start = c(2002,1),end = c(2019,12),frequency = 12)
+ts.plot(p1[,'Tipo_cambio'],p1[,'Dif_Inflacion'],type='l',lty=c(1,2)
+        ,col=c('#3361FF','#FF3333'),lwd=2)
+legend('topleft',border = NULL,legend = c('TC','DI'),lty =c(1,2),
+       col = c('#3361FF','#FF3333'))
+
+ts.plot(p1[,'Tipo_cambio'],type='l',xlab = 'Años',ylab='Valores',
+        ylim=c(-0.15,0.2),lty=1,col='#3361FF',lwd=2)
+ts.plot(p1[,'Dif_Inflacion'],type='l',xlab = 'Años',ylab='Valores',
+        ylim=c(-0.1,0.1),lty=1,col='#3361FF',lwd=2)
+
+ts.plot(p2[,'Inflacion_China'],type='l',xlab = 'Años',ylab='Valores',
+        ylim=c(-0.02,0.1),lty=1,col='#3361FF',lwd=2)
+
+
+di_9<-lag(PPP$Dif_Inflacion,9)
+
+TC<-ts(Tipo_cambio, start =c(2002,1),end=c(2019,12),freq=12)
+DI<-ts(Dif_Inflacion, start =c(2002,1),end=c(2019,12),freq=12)
 
 #Bind into a system
 dset<-cbind(diff(TC),diff(DI))
 dset
-di_9<-lag(PPP$Dif_Inflacion,9)
-plot(di_9)
-plot(Dif_Inflacion)
-cor.lag(TC,DI)
-?cor
-length(di_9)
-view(di_9)
+
 
 #Lag Selection criteria
-lagselect<-VARselect(dset,lag.max = 50,type = 'const')
+dset1<-dset[1:215,]
+lagselect<-VARselect(dset1,lag.max = 100,type = 'trend')
+?VARselect
 lagselect$selection
 
 
 #Johansen test (trace)
-ctest1<-ca.jo(dset,K=31,type = 'trace',ecdet = 'const',spec = 'transitory')
+ctest1<-ca.jo(dset1,K=57,type = 'trace',ecdet = 'trend',spec = 'longrun')
 summary(ctest1)
-
+ctest1
+?ca.jo
 #Johansen test (Maxeigen)
-ctest2<-ca.jo(dset,K=31,type = 'eigen',ecdet = 'const',spec = 'transitory')
+ctest2<-ca.jo(dset1,K=52,type = 'eigen',ecdet = 'trend',spec = 'longrun')
 summary(ctest2)
 
 #Estimación VEC
 vecm1<-cajorls(ctest1,r=1)
 vecm1
 summary(vecm1$rlm)
+?cajorls
+vc<-VECM(dset,lag = 57,estim ='2OLS',r=1)
+
+
+#Impulse Response Function
+var<-vec2var()
