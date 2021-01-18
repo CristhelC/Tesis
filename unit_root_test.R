@@ -237,10 +237,7 @@ summary(y3)
 
 adf.test(residuales)
 
-#Prueba de Phillips y Ouliaris para Cointegración
-prueba.PO=ca.po(dset,demean = 'none',type = 'Pz',lag = 'long')
-summary(prueba.PO)
-plot(prueba.PO)
+
 
 #Genero Modelo de Correción de Errores
 dTC<-diff(Tipo_cambio)
@@ -287,28 +284,36 @@ ts.plot(p2[,'Inflacion_China'],type='l',xlab = 'Años',ylab='Valores',
 di_9<-lag(PPP$Dif_Inflacion,9)
 
 TC<-ts(Tipo_cambio, start =c(2002,1),end=c(2019,12),freq=12)
-DI<-ts(Dif_Inflacion, start =c(2002,1),end=c(2019,12),freq=12)
+DI<-ts(di_9, start =c(2002,1),end=c(2019,12),freq=12)
 
 #Bind into a system
 dset<-cbind(diff(TC),diff(DI))
 dset
-
+plot(dset)
 
 #Lag Selection criteria
 dset1<-dset[1:215,]
-lagselect<-VARselect(dset1,lag.max = 100,type = 'trend')
-?VARselect
+lagselect<-VARselect(dset,lag.max = 100,type = 'const')
+
 lagselect$selection
 
 
 #Johansen test (trace)
-ctest1<-ca.jo(dset1,K=57,type = 'trace',ecdet = 'trend',spec = 'longrun')
+ctest1<-ca.jo(dset,K=57,type = 'trace',ecdet = 'const',spec = 'transitory')
 summary(ctest1)
 ctest1
 ?ca.jo
 #Johansen test (Maxeigen)
-ctest2<-ca.jo(dset1,K=52,type = 'eigen',ecdet = 'trend',spec = 'longrun')
+ctest2<-ca.jo(dset,K=57,type = 'eigen',ecdet = 'const')
 summary(ctest2)
+
+#Prueba de Phillips y Ouliaris para Cointegración
+prueba.PO=ca.po(dset,demean = 'none',type = 'Pz',lag = 'long')
+summary(prueba.PO)
+prueba.PO
+
+plot(prueba.PO)
+
 
 #Estimación VEC
 vecm1<-cajorls(ctest1,r=1)
